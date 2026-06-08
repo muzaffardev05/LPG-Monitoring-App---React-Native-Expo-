@@ -1,3 +1,9 @@
+
+
+
+
+
+
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Button } from 'react-native-web';
@@ -10,16 +16,17 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 
 
-const App = () => {
+const CylinderDetails = ({ route }) => {
     const [activeScreen, setActiveScreen] = useState('level');
+    const { cylinder } = route.params;
 
     const renderContent = () => {
         switch (activeScreen) {
             case 'level':
-                return <Level level="52" style={styles.content}></Level>;
+                return <Level level={cylinder.gasLevel} />;
 
             case 'temp':
-                return <Temp currentTemp={13} maxTemp={40} />;
+                return <Temp currentTemp={cylinder.temperature} maxTemp={40} />;
 
 
 
@@ -36,7 +43,6 @@ const App = () => {
 
             {/* Buttons */}
             <SafeAreaView>
-
 
 
                 <View style={styles.buttonContainer}>
@@ -89,19 +95,31 @@ const App = () => {
             <View style={styles.contentContainer}>
                 {renderContent()}
             </View>
+            {/* Bottom Cylinder Info */}
+            <View style={styles.bottomCard}>
+                <MaterialCommunityIcons
+                    name="gas-cylinder"
+                    size={26}
+                    color="#0f172a"
+                />
 
+                <View style={{ marginLeft: 10 }}>
+
+                    <Text style={styles.bottomTitle}>
+                        {cylinder.name || `Cylinder ${cylinder.id}`}
+                    </Text>
+                </View>
+            </View>
         </View>
     );
 };
 
-export default App;
+export default CylinderDetails;
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#481888',
-
-
+        backgroundColor: '#fff',
     },
 
     buttonContainer: {
@@ -143,5 +161,42 @@ const styles = StyleSheet.create({
 
 
 
+    },
+    bottomCard: {
+        position: 'absolute',
+        bottom: 14,
+        left: 20,
+        right: 20,
+        backgroundColor: '#fff',
+        borderRadius: 18,
+        paddingVertical: 4,
+        paddingHorizontal: 10,
+        flexDirection: 'row',
+        alignItems: 'center',
+
+        // Shadow (iOS)
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 1,
+            height: 6,
+        },
+        shadowOpacity: 0.15,
+        shadowRadius: 12,
+
+        // Shadow (Android)
+        elevation: 8,
+    },
+
+    bottomLabel: {
+        fontSize: 12,
+        color: '#506075',
+        textTransform: 'uppercase',
+        letterSpacing: 1,
+    },
+
+    bottomTitle: {
+        fontSize: 16,
+        fontWeight: '700',
+        color: '#0f172a',
     },
 });

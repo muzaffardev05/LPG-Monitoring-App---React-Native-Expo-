@@ -1,28 +1,28 @@
 import React, { useEffect, useRef, useContext } from 'react';
 import { View, Text, StyleSheet, Animated, TouchableOpacity, Image } from 'react-native';
 import { GasContext } from '../context/GasContext';
-const Level = () => {
+const Level = ({ level }) => {
     const heightAnim = useRef(new Animated.Value(0)).current;
-    const { gasLevel } = useContext(GasContext);
+
 
     useEffect(() => {
         Animated.timing(heightAnim, {
-            toValue: gasLevel,
+            toValue: level,
             duration: 500,
             useNativeDriver: false,
         }).start();
-    }, [gasLevel]);
+    }, [level]);
 
-    const getLevelColor = () => {
-        if (gasLevel > 60) return '#4caf50';
-        if (gasLevel > 20) return '#ffc107';
+     const  getLevelColor = () => {
+        if (level > 60) return '#4caf50';
+        if (level > 20) return '#ffc107';
         return '#f44336';
     };
 
     return (
-        <TouchableOpacity style={styles.card} >
+        <View style={styles.card} >
             <View style={styles.imageContainer}>
-               
+
                 <Image
                     style={styles.image}
                     source={require('../../assets/cylinder.png')}
@@ -43,8 +43,8 @@ const Level = () => {
                     />
                 </View>
             </View>
-            <Text style={styles.levelText}> <Text style={{ fontWeight: 'bold', fontSize: 15 }}>{gasLevel}</Text>% Remaining</Text>
-        </TouchableOpacity>
+            <Text style={styles.levelText}> <Text style={{ fontWeight: 'bold', fontSize: 15 }}>{level}</Text>% Remaining</Text>
+        </View>
     );
 };
 
@@ -91,6 +91,6 @@ const styles = StyleSheet.create({
         fontWeight: 600,
         color: '#000000',
         textAlign: 'center',
-        marginBottom:40
+        marginBottom: 40
     },
 });

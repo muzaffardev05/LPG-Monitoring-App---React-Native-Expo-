@@ -13,6 +13,10 @@ import Profile from '../screens/Profile';
 import Home from '../screens/Home';
 import Settings from '../screens/Settings';
 import { BLEProvider } from '../context/BLEContext';
+import CylinderList from '../screens/CylinderList';
+import CylinderDetails from '../screens/CylinderDetails';
+import EditCylinder from '../components/EditCylinder';
+import AddCylinder from '../components/AddCylinder';
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
@@ -82,7 +86,8 @@ function BottomTabs() {
         >
 
 
-            <Tab.Screen name="Home" component={Home} />
+            <Tab.Screen name="Home" component={CylinderList} />
+           
             <Tab.Screen name="Profile" component={Profile} />
             <Tab.Screen name="Settings" component={Settings} />
 
@@ -112,11 +117,27 @@ export function RootStack() {
             />
 
             {/* Tabs */}
+            
             <Stack.Screen
                 name="MainTabs"
                 component={BottomTabs}
                 options={{ headerShown: false }}
             />
+             <Tab.Screen name="CylinderDetails" component={CylinderDetails} />
+            {/* <Stack.Screen
+                name="MainTabs"
+                component={BottomTabs}
+                options={{ headerShown: false }}
+            /> */}
+
+            <Stack.Screen
+  name="EditCylinder"
+  component={EditCylinder}
+/>
+            <Stack.Screen
+  name="AddCylinder"
+  component={AddCylinder}
+/>
 
         </Stack.Navigator>
         

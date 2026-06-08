@@ -15,123 +15,47 @@ import {
 } from "react-native";
 
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-
 import { GasContext } from "../context/GasContext";
+import { Link } from "@react-navigation/native";
+import AccountSettings from "../components/AccountSettings";
+import AlertSettingsScreen from "../components/AlertSettingCard";
+import Alarm from "./Alarm";
+
+
 
 const SettingsScreen = ({ navigation }) => {
 
-  const {
-    user,
-    logout,
-    updateProfile,
-  } = useContext(GasContext);
 
-  const [username, setUsername] = useState("");
+  const [showAccountSettings, setShowAccountSettings] = useState(false)
+  const [showAlertsSettings, setShowAlertsSettings] = useState(false)
+  const { user } = useContext(GasContext);
 
-  const [email, setEmail] = useState("");
-
-  const [saving, setSaving] = useState(false);
-  const [currentPassword, setCurrentPassword] = useState("");
-
-const [newPassword, setNewPassword] = useState("");
-
-const [confirmPassword, setConfirmPassword] = useState("");
-
-  // LOAD USER DATA
-  useEffect(() => {
-
-    if (user) {
-
-      setUsername(user.username || "");
-
-      setEmail(user.email || "");
-    }
-
-  }, [user]);
+  const [activeScreen, setActiveScreen] = useState("")
 
 
 
-// const handleLogout=async ()=>{
-//     await logout();
-
-//            navigation.replace("Login");
-// }
 
 
-  const handleLogout = async () => {
 
-    Alert.alert(
-      "Logout",
-      "Are you sure you want to logout?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
+  const onShowAccountSettings = (screen) => {
 
-        {
-          text: "Logout",
+    setShowAccountSettings(pre => !pre)
+    setShowAlertsSettings(false)
 
-          style: "destructive",
 
-          onPress: async () => {
-
-            await logout();
-
-            navigation.replace("Login");
-          },
-        },
-      ]
-    );
-  };
-
-  const handleSave = async () => {
-
-  // CHECK PASSWORD MATCH
-  if (newPassword || confirmPassword) {
-
-    if (newPassword !== confirmPassword) {
-
-      Alert.alert(
-        "Error",
-        "Passwords do not match"
-      );
-
-      return;
-    }
   }
 
-  setSaving(true);
+  const onALertsAccountSettings = () => {
 
-  const result = await updateProfile(
-    username,
-    email,
-    currentPassword,
-    newPassword
-  );
 
-  setSaving(false);
-
-  if (result.success) {
-
-    Alert.alert(
-      "Success",
-      result.message
-    );
-
-    // CLEAR PASSWORD FIELDS
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
-
-  } else {
-
-    Alert.alert(
-      "Error",
-      result.message
-    );
+    setShowAlertsSettings(pre => !pre)
+    setShowAccountSettings(false)
   }
-};
+
+
+
+
+
 
   return (
 
@@ -158,7 +82,7 @@ const [confirmPassword, setConfirmPassword] = useState("");
 
       {/* PROFILE CARD */}
 
-      <View style={styles.card}>
+      {/* <View style={styles.card}>
 
         <View style={styles.iconBox}>
 
@@ -178,111 +102,23 @@ const [confirmPassword, setConfirmPassword] = useState("");
           {user?.email}
         </Text>
 
-      </View>
+      </View> */}
 
       {/* FORM */}
 
-      <View style={styles.form}>
+      {/* <AccountSettings /> */}
 
-        <Text style={styles.label}>
-          Username
-        </Text>
-
-        <TextInput
-          style={styles.input}
-          value={username}
-          onChangeText={setUsername}
-          placeholder="Username"
-        />
-       
-
-<Text style={styles.label}>
-  Current Password
-</Text>
-
-<TextInput
-  style={styles.input}
-  placeholder="Current Password"
-  secureTextEntry
-  value={currentPassword}
-  onChangeText={setCurrentPassword}
-/>
-
-<Text style={styles.label}>
-  New Password
-</Text>
-
-<TextInput
-  style={styles.input}
-  placeholder="New Password"
-  secureTextEntry
-  value={newPassword}
-  onChangeText={setNewPassword}
-/>
-
-<Text style={styles.label}>
-  Confirm Password
-</Text>
-
-<TextInput
-  style={styles.input}
-  placeholder="Confirm Password"
-  secureTextEntry
-  value={confirmPassword}
-  onChangeText={setConfirmPassword}
-/>
-
-
-
-        <Text style={styles.label}>
-          Email
-        </Text>
-
-        <TextInput
-          style={styles.input}
-          value={email}
-          onChangeText={setEmail}
-          placeholder="Email"
-          keyboardType="email-address"
-        />
-
-        {/* SAVE BUTTON */}
-
-        <TouchableOpacity
-          style={styles.saveButton}
-          onPress={handleSave}
-        >
-
-          <Text style={styles.saveText}>
-            {
-              saving
-                ? "Saving..."
-                : "Save Changes"
-            }
-          </Text>
-
+      <View style={styles.settingmenu}>
+        <TouchableOpacity style={styles.settingitem} onPress={onShowAccountSettings}>
+          <Text style={styles.settingTitle}>Account Settings</Text>
         </TouchableOpacity>
-
-        {/* LOGOUT BUTTON */}
-
-        <TouchableOpacity
-          style={styles.logoutButton}
-          onPress={handleLogout}
-        >
-
-          <MaterialIcons
-            name="logout"
-            size={20}
-            color="#fff"
-          />
-
-          <Text style={styles.logoutText}>
-            Logout
-          </Text>
-
+        {showAccountSettings && <AccountSettings />}
+        <TouchableOpacity style={styles.settingitem} onPress={onALertsAccountSettings}>
+          <Text style={styles.settingTitle}>Alerts Settings</Text>
         </TouchableOpacity>
-
+        {showAlertsSettings && <AlertSettingsScreen />}
       </View>
+
 
     </ScrollView>
   );
@@ -294,7 +130,7 @@ const styles = StyleSheet.create({
 
   container: {
     flex: 1,
-    backgroundColor: "#0f172a",
+
   },
 
   header: {
@@ -306,16 +142,16 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 30,
     fontWeight: "bold",
-    color: "#fff",
+    color: "#000000",
   },
 
   subheading: {
-    color: "#94a3b8",
+    color: "#1b1d1f",
     marginTop: 5,
   },
 
   card: {
-    backgroundColor: "#1e293b",
+    backgroundColor: "#000000",
     marginHorizontal: 20,
     borderRadius: 20,
     padding: 25,
@@ -367,7 +203,7 @@ const styles = StyleSheet.create({
 
   saveButton: {
     backgroundColor: "#c7301c",
-    padding: 16,
+   
     borderRadius: 14,
     alignItems: "center",
     marginTop: 10,
@@ -395,5 +231,28 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 16,
   },
+  settingmenu: {
+
+    paddingHorizontal: 20,
+    color: "#cfcccc",
+    marginBottom: 60
+  },
+  settingitem: {
+
+
+    fontWeight: "bold",
+    backgroundColor: "#1e293b",
+    borderRadius: 20,
+    borderRadius: 20,
+    padding: 16,
+    marginTop: 12,
+
+
+
+  },
+  settingTitle: {
+    color: "#ffffff",
+    fontSize: 15,
+  }
 
 });

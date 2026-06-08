@@ -41,19 +41,9 @@ const Login = ({ navigation }) => {
     const [confirmPassword, setConfirmPassword] = useState("");
 
 
+ useEffect(() => {
 
-
-    useEffect(() => {
-        setLoading(true)
-        const timer = setTimeout(() => {
-            setLoading(false)
-        }, 3000); // 3 seconds splash
-
-        return () => clearTimeout(timer);
-    }, []);
-    useEffect(() => {
-
-        if (user) {
+        if (user && !loading) {
 
             navigation.replace("MainTabs");
 
@@ -61,12 +51,22 @@ const Login = ({ navigation }) => {
 
     }, [user]);
 
+    useEffect(() => {
+        setLoading(true)
+        const timer = setTimeout(() => {
+            setLoading(false)
+        }, 4000); // 3 seconds splash
+
+        return () => clearTimeout(timer);
+    }, []);
+   
+
     // LOGIN
     const handleLogin = async () => {
 
 
         const result = await login(username, password);
-        console.log(result);
+      
 
         if (result.success) {
 
@@ -116,7 +116,7 @@ const Login = ({ navigation }) => {
         }
     };
 
-    if (loading) {
+    if ( loading) {
 
         return (
 
@@ -130,8 +130,11 @@ const Login = ({ navigation }) => {
             </View>
         );
     }
+    if(user){
+        return null;
+    }
 
-    return (
+  return (
 
         <View style={styles.container}>
 

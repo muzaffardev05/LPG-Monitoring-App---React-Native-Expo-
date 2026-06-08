@@ -3,11 +3,11 @@ import { View, Text, StyleSheet } from 'react-native';
 import Svg, { Rect, Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { useContext } from 'react';
 import { GasContext } from '../context/GasContext';
-const Temp = () => {
+const Temp = ({currentTemp}) => {
   const chartHeight = 250;
   const chartWidth = 40;
   const bulbRadius = 30;
-  const {currentTemp,maxTemp}=useContext(GasContext)
+  const {maxTemp}=useContext(GasContext)
 
   // Calculate filled height (accounting for bulb at the bottom)
   const availableHeight = chartHeight - bulbRadius;

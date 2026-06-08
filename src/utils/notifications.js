@@ -40,38 +40,30 @@ export async function setupNotifications() {
 
 
 
-// LOW GAS ALERT
-export async function sendLowGasAlert(gasLevel) {
-
+export async function sendLowGasAlert(cylinderName, gasLevel) {
   if (Platform.OS === 'web') return;
 
   await Notifications.scheduleNotificationAsync({
     content: {
-      title: 'Low Gas Alert',
-      body: `Gas level is low (${gasLevel}%)`,
+      title: '⚠️ Low Gas Alert',
+      body: `${cylinderName} gas level is low (${gasLevel}%)`,
       sound: 'default',
       priority: Notifications.AndroidNotificationPriority.MAX,
     },
-
     trigger: null,
   });
 }
 
-
-
-// LOW BATTERY ALERT
-export async function sendLowBatteryAlert(batteryLevel) {
-
+export async function sendLowBatteryAlert(cylinderName, batteryLevel) {
   if (Platform.OS === 'web') return;
 
   await Notifications.scheduleNotificationAsync({
     content: {
       title: '🔋 Low Battery Alert',
-      body: `Battery level is low (${batteryLevel}%)`,
+      body: `${cylinderName} battery level is low (${batteryLevel}%)`,
       sound: 'default',
       priority: Notifications.AndroidNotificationPriority.MAX,
     },
-
     trigger: null,
   });
 }

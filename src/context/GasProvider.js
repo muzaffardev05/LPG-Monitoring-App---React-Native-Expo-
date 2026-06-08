@@ -27,6 +27,16 @@ const GasProvider = ({ children }) => {
   const [userAllowGasAlert, setUserAllowGasAlert] = useState(false);
   const [userAllowBatteryAlert, setUserAllowBatteryAlert] = useState(false);
 
+
+
+
+
+
+  const [gasAlertEnabled, setGasAlertEnabled] = useState(false)
+  const [batteryAlertEnabled, setbatteryAlertEnabled] = useState(false)
+  const [gasThreshold, setGasThreshold] = useState(15)
+  const [batteryThreshold, setBatteryThreshold] = useState(6)
+const CYLINDERS_KEY = `cylinders_${user?.id}`;
   const [cylinders, setCylinders] = useState([
     {
       id: "cyl-001",
@@ -34,19 +44,25 @@ const GasProvider = ({ children }) => {
       gasLevel: 80,
       batteryLevel: 95,
       connected: true,
+      temperature: 40,
+      status: "Normal",
+      isVisible: true,
+
     },
     {
       id: "cyl-002",
       name: "Backup Cylinder",
-      gasLevel: 60,
-      batteryLevel: 88,
+      gasLevel: 10,
+      batteryLevel: 48,
       connected: true,
-    },
+      temperature: 12,
+      status: "Low Gas",
+      isVisible: true,
+    }
   ]);
 
-  const gasAlertSent = useRef(false);
-  const batteryAlertSent = useRef(false);
-
+const gasAlertSent = useRef({});
+const batteryAlertSent = useRef({});
   useEffect(() => {
     setupNotifications();
   }, []);
@@ -57,6 +73,8 @@ const GasProvider = ({ children }) => {
     loadUsers();
     loadSession();
     loadAlerts();
+    loadAlertSettings();
+    loadCylinders()
 
   }, []);
 
@@ -65,30 +83,78 @@ const GasProvider = ({ children }) => {
 
 
   useEffect(() => {
+
+  cylinders.forEach(cylinder => {
+
+    // GAS ALERT
     if (gasLowAlert) {
-      if (gasLevel <= 20 && !gasAlertSent.current) {
-        sendLowGasAlert(gasLevel);
-        gasAlertSent.current = true;
+
+      if (
+        cylinder.gasLevel <= gasThreshold &&
+        !gasAlertSent.current[cylinder.id]
+      ) {
+
+        sendLowGasAlert(
+          cylinder.name,
+          cylinder.gasLevel
+        );
+
+        gasAlertSent.current[cylinder.id] = true;
       }
 
-      if (gasLevel > 20) {
-        gasAlertSent.current = false;
+      if (cylinder.gasLevel > gasThreshold) {
+        gasAlertSent.current[cylinder.id] = false;
       }
     }
 
+    // BATTERY ALERT
     if (batteryLowAlert) {
-      if (batteryLevel <= 15 && !batteryAlertSent.current) {
-        sendLowBatteryAlert(batteryLevel);
-        batteryAlertSent.current = true;
+
+      if (
+        cylinder.batteryLevel <= batteryThreshold &&
+        !batteryAlertSent.current[cylinder.id]
+      ) {
+
+        sendLowBatteryAlert(
+          cylinder.name,
+          cylinder.batteryLevel
+        );
+
+        batteryAlertSent.current[cylinder.id] = true;
       }
 
-      if (batteryLevel > 15) {
-        batteryAlertSent.current = false;
+      if (cylinder.batteryLevel > batteryThreshold) {
+        batteryAlertSent.current[cylinder.id] = false;
       }
     }
-  }, [gasLevel, batteryLevel, gasLowAlert, batteryLowAlert]);
 
+  });
 
+}, [
+  cylinders,
+  gasLowAlert,
+  batteryLowAlert,
+  gasThreshold,
+  batteryThreshold
+]);
+
+useEffect(() => {
+  saveCylinders();
+}, [cylinders]);
+
+useEffect(() => {
+  if (user) {
+    loadCylinders();
+  }
+}, [user]);
+const saveCylinders = async () => {
+  if (!user) return;
+
+  await AsyncStorage.setItem(
+    `cylinders_${user.id}`,
+    JSON.stringify(cylinders)
+  );
+};
   // LOAD REGISTERED USERS
   const loadUsers = async () => {
 
@@ -133,6 +199,30 @@ const GasProvider = ({ children }) => {
 
   //load alerts
 
+  const loadAlertSettings = async () => {
+    try {
+      const [alertSettings] = await Promise.all([
+        AsyncStorage.getItem("alertSettings"),
+      ]);
+
+      const newsettings = (JSON.parse(alertSettings));
+
+
+      if (alertSettings) {
+        setGasLowAlert(newsettings.gasLowAlert);
+        setBatteryLowAlert(newsettings.batteryLowAlert);
+        setGasThreshold(newsettings.gasThreshold)
+        setBatteryThreshold(newsettings.batteryThreshold)
+      }
+
+
+    } catch (error) {
+      console.log("Session Error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const loadAlerts = async () => {
     try {
       const [gasLowAlert, batteryLowAlert] = await Promise.all([
@@ -155,6 +245,17 @@ const GasProvider = ({ children }) => {
   };
 
 
+const loadCylinders = async () => {
+  try {
+    const stored = await AsyncStorage.getItem(CYLINDERS_KEY);
+
+    if (stored) {
+      setCylinders(JSON.parse(stored));
+    }
+  } catch (error) {
+    console.log("Load Cylinders Error:", error);
+  }
+};
   // REGISTER USER
   const register = async (username, email, password) => {
 
@@ -302,38 +403,7 @@ const GasProvider = ({ children }) => {
     }
 
 
-    const login = (username, password) => {
-      console.log(username, password);
 
-      if (username === "admin" && password === "1234") {
-
-        setUser({
-          username: username,
-          loggedIn: true,
-        });
-
-        return true;
-      }
-
-      return false;
-    };
-
-    const logout = () => {
-      setUser(null);
-    };
-
-    const register = (username, email, password) => {
-
-      const newUser = {
-        username,
-        email,
-        password,
-      };
-
-      console.log("Registered User:", newUser);
-
-      return true;
-    };
   }
 
   const updateProfile = async (
@@ -462,6 +532,37 @@ const GasProvider = ({ children }) => {
     }
   };
 
+  const addCylinder = async (cylinder) => {
+  setCylinders(prev => [...prev, cylinder]);
+};
+  const deleteCylinder = async (id) => {
+  setCylinders(prev =>
+    prev.filter(item => item.id !== id)
+  );
+};
+const updateCylinder = async (id, updatedData) => {
+  setCylinders(prev =>
+    prev.map(cylinder =>
+      cylinder.id === id
+        ? { ...cylinder, ...updatedData }
+        : cylinder
+    )
+  );
+};
+
+
+const toggleCylinderVisibility = (id) => {
+  setCylinders((prev) =>
+    prev.map((cylinder) =>
+      cylinder.id === id
+        ? {
+            ...cylinder,
+            isVisible: !cylinder.isVisible,
+          }
+        : cylinder
+    )
+  );
+};
 
   return (
     <GasContext.Provider
@@ -487,7 +588,14 @@ const GasProvider = ({ children }) => {
         batteryLowAlert,
         setBatteryLowAlert,
         cylinders,
-        setCylinders
+        setCylinders,
+        updateCylinder,
+        setGasThreshold,
+        setBatteryThreshold,
+        batteryThreshold,
+        gasThreshold,
+        addCylinder,
+        toggleCylinderVisibility
 
 
       }}
