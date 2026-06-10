@@ -22,7 +22,7 @@ export const BLEProvider = ({ children }) => {
   const [connectedDevices, setConnectedDevices] = useState([]);
   const [deviceData, setDeviceData] = useState({});
   const [isScanning, setIsScanning] = useState(false);
-
+const [connectingDeviceId, setConnectingDeviceId] = useState(null);
   useEffect(() => {
     if (Platform.OS !== "web") {
       const { BleManager } = require("react-native-ble-plx");
@@ -46,47 +46,25 @@ export const BLEProvider = ({ children }) => {
       reconnectBLEDevices();
     }
   }, [cylinders]);
-  const reconnectBLEDevices =
-    async () => {
-      const manager =
-        managerRef.current;
 
-      if (!manager) return;
+ const reconnectBLEDevices = async () => {
+  const bleCylinders = cylinders.filter(
+    (item) => item.isBLE && item.bleId
+  );
 
-      const bleCylinders =
-        cylinders.filter(
-          (item) =>
-            item.isBLE &&
-            item.bleId
-        );
+  for (const cylinder of bleCylinders) {
+    try {
+      await connectById(cylinder.bleId);
 
-      for (const cylinder of bleCylinders) {
-        try {
-          const device =
-            await manager.connectToDevice(
-              cylinder.bleId
-            );
-
-          await device.discoverAllServicesAndCharacteristics();
-
-          monitorGasData(device);
-
-          console.log(
-            "Reconnected:",
-            cylinder.name
-          );
-        } catch (error) {
-          console.log(
-            "Reconnect Failed:",
-            cylinder.name
-          );
-
-          disconnectCylinder(
-            cylinder.bleId
-          );
-        }
-      }
-    };
+      console.log(
+        "Reconnected:",
+        cylinder.name
+      );
+    } catch {
+      disconnectCylinder(cylinder.bleId);
+    }
+  }
+};
 
 
   const requestPermissions = async () => {
@@ -157,45 +135,98 @@ export const BLEProvider = ({ children }) => {
     setIsScanning(false);
   };
 
-  const connectDevice = async (
-    device,
-    onConnected = () => { }
-  ) => {
-    try {
-      const connected = await device.connect();
+ const connectDevice = async (
+  device,
+  onConnected = () => {}
+) => {
+  try {
+    setConnectingDeviceId(device.id);
 
-      await connected.discoverAllServicesAndCharacteristics();
+    const connectedDevice = await device.connect();
 
-      setConnectedDevices((prev) => {
-        const exists = prev.find(
-          (d) =>
-            d.id === connectedDevice.id
+    await connectedDevice.discoverAllServicesAndCharacteristics();
+
+    setConnectedDevices((prev) => {
+      const exists = prev.find(
+        (d) => d.id === connectedDevice.id
+      );
+
+      if (exists) {
+        return prev;
+      }
+
+      return [...prev, connectedDevice];
+    });
+
+    connectedDevice.onDisconnected(
+      (error, disconnectedDevice) => {
+        disconnectCylinder(disconnectedDevice?.id);
+
+        setConnectedDevices((prev) =>
+          prev.filter(
+            (item) =>
+              item.id !== disconnectedDevice?.id
+          )
         );
-
-        if (exists) return prev;
-
-        return [
-          ...prev,
-          connectedDevice,
-        ];
-      });
-
-      connectedDevice.onDisconnected(
-  (error, device) => {
-    disconnectCylinder(
-      device?.id
+      }
     );
+
+    monitorGasData(connectedDevice);
+
+    onConnected(connectedDevice);
+  } catch (e) {
+    console.log("Connect Error", e);
+  } finally {
+    setConnectingDeviceId(null);
   }
-);
+};
 
-      monitorGasData(connected);
+const connectById = async (
+  bleId,
+  onConnected = () => {}
+) => {
+  try {
+    setConnectingDeviceId(bleId);
 
-      onConnected(connected);
-    } catch (e) {
-      console.log("Connect Error", e);
-    }
-  };
+    const manager = managerRef.current;
 
+    const connectedDevice =
+      await manager.connectToDevice(bleId);
+
+    await connectedDevice.discoverAllServicesAndCharacteristics();
+
+    setConnectedDevices((prev) => {
+      const exists = prev.find(
+        (d) => d.id === connectedDevice.id
+      );
+
+      if (exists) return prev;
+
+      return [...prev, connectedDevice];
+    });
+
+    connectedDevice.onDisconnected(
+      (error, disconnectedDevice) => {
+        disconnectCylinder(disconnectedDevice?.id);
+
+        setConnectedDevices((prev) =>
+          prev.filter(
+            (item) =>
+              item.id !== disconnectedDevice?.id
+          )
+        );
+      }
+    );
+
+    monitorGasData(connectedDevice);
+
+    onConnected(connectedDevice);
+  } catch (e) {
+    console.log(e);
+  } finally {
+    setConnectingDeviceId(null);
+  }
+};
   const disconnectDevice = async (deviceId) => {
     try {
       await managerRef.current.cancelDeviceConnection(
@@ -209,6 +240,11 @@ export const BLEProvider = ({ children }) => {
       console.log(e);
     }
   };
+
+
+const getDeviceById = (id) => {
+  return devices.find((d) => d.id === id);
+};
 
   /*
       Replace these UUIDs
@@ -275,11 +311,12 @@ export const BLEProvider = ({ children }) => {
         connectedDevices,
         deviceData,
         isScanning,
-
+connectingDeviceId,
         scanDevices,
         stopScan,
 
         connectDevice,
+        connectById,
         disconnectDevice,
       }}
     >

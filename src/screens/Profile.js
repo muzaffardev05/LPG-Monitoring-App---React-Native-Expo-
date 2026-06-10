@@ -89,7 +89,7 @@ const Profile = ({ navigation }) => {
                                         </View>
 
                                         <Switch
-                                            value={item.isVisible}
+                                            value={item?.isVisible}
                                             trackColor={{
                                                 false: "#767577",
                                                 true: "#81b0ff",
@@ -118,7 +118,7 @@ const Profile = ({ navigation }) => {
 
                     <View style={{ marginBottom: 50 }}>
 
-                        <View style={{ backgroundColor: '#ffffff', paddingVertical: 5, paddingHorizontal: 30, borderRadius: 20 }}>
+                        <View style={{ backgroundColor: '#ffffff', paddingVertical: 5, paddingHorizontal: 30, borderRadius: 20,marginTop:10 }}>
 
                             <TouchableOpacity onPress={handleAddCylinder}>
 
@@ -186,7 +186,9 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         padding: 20,
         maxHeight: 290,
-        borderColor: "#000"
+        minHeight:290,
+        borderColor: "#000",
+        
 
     },
 

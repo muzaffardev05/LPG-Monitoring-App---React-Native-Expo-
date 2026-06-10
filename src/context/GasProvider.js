@@ -104,7 +104,7 @@ const GasProvider = ({ children }) => {
     cylinders.forEach(cylinder => {
 
       // GAS ALERT
-      if (gasLowAlert) {
+      if (gasLowAlert && cylinder.connected) {
 
         if (
           cylinder.gasLevel <= gasThreshold &&
@@ -125,7 +125,7 @@ const GasProvider = ({ children }) => {
       }
 
       // BATTERY ALERT
-      if (batteryLowAlert) {
+      if (batteryLowAlert && cylinder.connected) {
 
         if (
           cylinder.batteryLevel <= batteryThreshold &&
@@ -653,16 +653,22 @@ const GasProvider = ({ children }) => {
 
   };
   const toggleCylinderVisibility = (id) => {
-    setCylinders((prev) =>
-      prev.map((cylinder) =>
+    setCylinders((prev) => {
+
+
+      const updated = prev.map((cylinder) =>
         cylinder.id === id
           ? {
             ...cylinder,
             isVisible: !cylinder.isVisible,
           }
           : cylinder
-      )
-    );
+      );
+
+
+
+      return updated;
+    });
   };
 
   return (
