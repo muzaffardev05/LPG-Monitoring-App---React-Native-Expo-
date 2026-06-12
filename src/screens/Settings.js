@@ -64,6 +64,7 @@ const SettingsScreen = ({ navigation }) => {
       contentContainerStyle={{
         paddingBottom: 40,
       }}
+    
     >
 
       {/* HEADER */}
@@ -80,33 +81,7 @@ const SettingsScreen = ({ navigation }) => {
 
       </View>
 
-      {/* PROFILE CARD */}
-
-      {/* <View style={styles.card}>
-
-        <View style={styles.iconBox}>
-
-          <MaterialIcons
-            name="person"
-            size={45}
-            color="#fff"
-          />
-
-        </View>
-
-        <Text style={styles.name}>
-          {user?.username}
-        </Text>
-
-        <Text style={styles.email}>
-          {user?.email}
-        </Text>
-
-      </View> */}
-
-      {/* FORM */}
-
-      {/* <AccountSettings /> */}
+    
 
       <View style={styles.settingmenu}>
         <TouchableOpacity style={styles.settingitem} onPress={onShowAccountSettings}>

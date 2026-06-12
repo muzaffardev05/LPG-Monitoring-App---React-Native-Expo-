@@ -43,10 +43,7 @@ const AlertSettingsScreen = () => {
             JSON.stringify(settings)
         );
 
-        Alert.alert(
-            "Success",
-            "Alert settings saved successfully."
-        );
+      
     } catch (error) {
         console.log("Save Error:", error);
 

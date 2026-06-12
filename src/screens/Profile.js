@@ -54,6 +54,7 @@ const Profile = ({ navigation }) => {
                             style={{
                                 fontSize: 16,
                                 marginBottom: 12,
+                                fontWeight: "500",
                                 textAlign: "center",
                                 color: "#000000",
                             }}
@@ -118,13 +119,13 @@ const Profile = ({ navigation }) => {
 
                     <View style={{ marginBottom: 50 }}>
 
-                        <View style={{ backgroundColor: '#ffffff', paddingVertical: 5, paddingHorizontal: 30, borderRadius: 20,marginTop:10 }}>
+                        <View style={{ backgroundColor: '#000000', paddingVertical: 5, paddingHorizontal: 30, borderRadius: 20, marginTop: 10 }}>
 
                             <TouchableOpacity onPress={handleAddCylinder}>
 
                                 <View style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center" }}>
-                                    <MaterialCommunityIcons name="gas-cylinder" size={30} color="black" />
-                                    <Text style={{ textAlign: "center", paddingLeft: 10, fontWeight: 500 }}>Add Cylinder</Text>
+                                    <MaterialCommunityIcons name="gas-cylinder" size={30} color="white" />
+                                    <Text style={{ textAlign: "center", paddingLeft: 10, fontWeight: 500, color: "white" }}>Add Cylinder</Text>
                                 </View>
                             </TouchableOpacity>
                         </View>
@@ -169,7 +170,7 @@ const styles = StyleSheet.create({
         borderRadius: 15,
         padding: 15,
         marginTop: 4,
-        width: '95%',
+        width: '100%',
         marginBottom: 3
 
 
@@ -186,9 +187,9 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         padding: 20,
         maxHeight: 290,
-        minHeight:290,
+        minHeight: 290,
         borderColor: "#000",
-        
+
 
     },
 
@@ -199,6 +200,7 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
         borderBottomWidth: 1,
         borderBottomColor: "#e5e7eb",
+        gap: 14,
     },
 
     cylinderInfo: {

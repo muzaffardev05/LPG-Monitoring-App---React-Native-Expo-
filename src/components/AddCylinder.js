@@ -13,7 +13,7 @@ import {
 } from "react-native";
 
 import { GasContext } from "../context/GasContext";
-import { BLEContext, isScanning } from "../context/BLEContext";
+import { BLEContext } from "../context/BLEContext";
 
 const AddCylinder = ({ navigation }) => {
   const { addCylinder } = useContext(GasContext);
@@ -43,32 +43,19 @@ const AddCylinder = ({ navigation }) => {
     }
 
     const cylinder = {
-
       id: `cyl-${Date.now()}`,
-
-      bleId: `name:124-${Date.now()}`,
-
-      name:name,
-
-      gasLevel: gasLevel,
-
-      batteryLevel: batteryLevel,
-
+      bleId: `cyl-${Date.now()}`,
+      name: name.trim(),
+      gasLevel: Number(gasLevel) || 0,
+      batteryLevel: Number(batteryLevel) || 0,
       connected: true,
-
-      temperature: 40,
-
+      temperature: Number(temperature) || 40,
       status: "Normal",
-
-      isBLE: true,
-
+      isBLE: false,
       isVisible: true,
-
     };
 
     addCylinder(cylinder);
-    addCylinder(cylinder);
-
     navigation.goBack();
   };
 

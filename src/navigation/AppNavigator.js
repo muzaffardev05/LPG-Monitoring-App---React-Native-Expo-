@@ -5,14 +5,10 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-import Profiler from '../screens/Profile';
-
 import Login from '../Home/Login';
 
 import Profile from '../screens/Profile';
-import Home from '../screens/Home';
 import Settings from '../screens/Settings';
-import { BLEProvider } from '../context/BLEContext';
 import CylinderList from '../screens/CylinderList';
 import CylinderDetails from '../screens/CylinderDetails';
 import EditCylinder from '../components/EditCylinder';
@@ -123,12 +119,11 @@ export function RootStack() {
                 component={BottomTabs}
                 options={{ headerShown: false }}
             />
-             <Tab.Screen name="CylinderDetails" component={CylinderDetails} />
-            {/* <Stack.Screen
-                name="MainTabs"
-                component={BottomTabs}
-                options={{ headerShown: false }}
-            /> */}
+            <Stack.Screen
+                name="CylinderDetails"
+                component={CylinderDetails}
+                
+            />
 
             <Stack.Screen
   name="EditCylinder"

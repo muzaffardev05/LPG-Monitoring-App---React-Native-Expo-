@@ -12,7 +12,7 @@ const GasProvider = ({ children }) => {
   const [gasLevel, setGasLevel] = useState(60);
   const [batteryLevel, setBatteryLevel] = useState(63);
   const [deviceConnected, setDeviceConnected] = useState(false);
-  const [currentTemp, setCurrentTemp] = useState(21);
+  const [currentTemp, setCurrentTemp] = useState(41);
   const [maxTemp, setMaxTemp] = useState(65);
 
   const [user, setUser] = useState(null);
@@ -21,6 +21,7 @@ const GasProvider = ({ children }) => {
 
   const [loading, setLoading] = useState(true);
 
+  const [cylindersLoaded, setCylindersLoaded] = useState(false);
 
   const [gasLowAlert, setGasLowAlert] = useState(false);
   const [batteryLowAlert, setBatteryLowAlert] = useState(false);
@@ -35,48 +36,9 @@ const GasProvider = ({ children }) => {
   const [gasAlertEnabled, setGasAlertEnabled] = useState(false)
   const [batteryAlertEnabled, setbatteryAlertEnabled] = useState(false)
   const [gasThreshold, setGasThreshold] = useState(15)
-  const [batteryThreshold, setBatteryThreshold] = useState(6)
+  const [batteryThreshold, setBatteryThreshold] = useState(16)
   const CYLINDERS_KEY = `cylinders_${user?.id}`;
-  const [cylinders, setCylinders] = useState([
-    {
-      id: "cyl-001",
-      bleId: "AB:CD:EF:12:34",
-
-      name: "Kitchen Cylinder",
-
-      gasLevel: 80,
-      batteryLevel: 95,
-
-      connected: true,
-
-      temperature: 40,
-
-      status: "Normal",
-
-      isBLE: true,
-
-      isVisible: true,
-    },
-    {
-      id: "cyl-002",
-      bleId: "AB:CR:EF:12:34",
-
-      name: "Kitchen Cylinder",
-
-      gasLevel: 60,
-      batteryLevel: 25,
-
-      connected: true,
-
-      temperature: 20,
-
-      status: "Normal",
-
-      isBLE: true,
-
-      isVisible: true,
-    },
-  ]);
+  const [cylinders, setCylinders] = useState([]);
 
   const gasAlertSent = useRef({});
   const batteryAlertSent = useRef({});
@@ -104,7 +66,7 @@ const GasProvider = ({ children }) => {
     cylinders.forEach(cylinder => {
 
       // GAS ALERT
-      if (gasLowAlert && cylinder.connected) {
+      if (gasLowAlert && cylinder.isVisible ) {
 
         if (
           cylinder.gasLevel <= gasThreshold &&
@@ -125,7 +87,7 @@ const GasProvider = ({ children }) => {
       }
 
       // BATTERY ALERT
-      if (batteryLowAlert && cylinder.connected) {
+      if (batteryLowAlert  && cylinder.isVisible) {
 
         if (
           cylinder.batteryLevel <= batteryThreshold &&
@@ -264,16 +226,25 @@ const GasProvider = ({ children }) => {
 
 
   const loadCylinders = async () => {
-
     if (!user) return;
+
     try {
       const stored = await AsyncStorage.getItem(CYLINDERS_KEY);
 
       if (stored) {
-        setCylinders(JSON.parse(stored));
+        const parsedCylinders = JSON.parse(stored).map((item) => ({
+          ...item,
+          connected: item.isBLE ? false : item.connected,
+        }));
+
+        setCylinders(parsedCylinders);
+      } else {
+        setCylinders([]);
       }
     } catch (error) {
       console.log("Load Cylinders Error:", error);
+    } finally {
+      setCylindersLoaded(true);
     }
   };
   // REGISTER USER
@@ -635,6 +606,8 @@ const GasProvider = ({ children }) => {
   };
 
   const disconnectCylinder = (bleId) => {
+    
+    console.log("Disconnection cylinder with bleid",bleId);
 
     setCylinders((prev) =>
       prev.map((item) =>
@@ -705,8 +678,8 @@ const GasProvider = ({ children }) => {
         toggleCylinderVisibility,
         updateCylinderFromBLE,
         disconnectCylinder,
+        cylindersLoaded,
         deleteCylinder,
-
 
       }}
     >
